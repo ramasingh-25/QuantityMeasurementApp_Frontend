@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>History - MeasureX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="dashboard.html" class="logo">Measure<span>X</span></a>
+  <div class="nav-right">
+    <a href="dashboard.html" class="btn btn-ghost">Dashboard</a>
+    <div id="userChip" class="user-chip" style="display:none">
+      <span class="dot"></span>
+      <span id="userName">Guest</span>
+    </div>
+    <a href="login.html" id="navLoginBtn" class="btn btn-accent" style="display:none">Login</a>
+    <button id="navLogoutBtn" class="btn btn-ghost" onclick="logout()" style="display:none">Logout</button>
+  </div>
+</nav>
+
+<!-- APP BODY -->
+<div class="app-body">
+
+  <!-- MAIN -->
+  <div class="main-content" style="max-width: 1200px; margin: 0 auto;">
+
+    <!-- HISTORY HEADER -->
+    <div class="converter-card">
+      <div class="converter-header">
+        <div>
+          <div class="converter-title">Conversion History</div>
+          <div class="cat-label">Your recent measurements</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost" onclick="refreshHistory()">Refresh</button>
+          <!-- <button class="btn btn-danger" onclick="clearHistory()">Clear All</button> -->
+        </div>
+      </div>
+
+      <!-- HISTORY FILTERS -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px;">
+        <div class="field-group">
+          <label>Category</label>
+          <select id="categoryFilter" onchange="filterHistory()">
+            <option value="all">All Categories</option>
+            <option value="length">Length</option>
+            <option value="weight">Weight</option>
+            <option value="temperature">Temperature</option>
+            <option value="volume">Volume</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Operation</label>
+          <select id="operationFilter" onchange="filterHistory()">
+            <option value="all">All Operations</option>
+            <option value="convert">Convert</option>
+            <option value="add">Add</option>
+            <option value="subtract">Subtract</option>
+            <option value="compare">Compare</option>
+            <option value="divide">Divide</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Date Range</label>
+          <select id="dateFilter" onchange="filterHistory()">
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- HISTORY LIST -->
+      <div class="history-list" id="historyList">
+        <!-- History items will be populated here -->
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div id="emptyState" style="text-align:center;padding:60px 20px;display:none;">
+        <div style="font-size:48px;margin-bottom:16px;opacity:0.5;">history</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:8px;">No History Found</div>
+        <div style="font-size:14px;color:#6b7280;margin-bottom:24px;">Start performing conversions to see your history here.</div>
+        <button class="btn btn-accent" onclick="location.href='dashboard.html'">Go to Dashboard</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script>
+// API constant and utility functions
+const API = 'http://localhost:5263/api';
+
+function showToast(message, type = 'success') {
+  // Simple toast implementation
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed; top: 20px; right: 20px; padding: 12px 20px;
+    background: ${type === 'error' ? '#ef4444' : '#10b981'}; color: white;
+    border-radius: 8px; z-index: 1000; font-family: 'DM Mono', monospace;
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// History page specific functionality
+let historyData = [];
+let isLoggedIn = false;
+let currentUser = null;
+
+function initHistory() {
+  checkAuth();
+  loadHistory();
+}
+
+function checkAuth() {
+  const token = localStorage.getItem('mx_token');
+  if (!token) {
+    location.href = 'login.html';
+    return;
+  }
+  isLoggedIn = true;
+  const userRaw = localStorage.getItem('mx_user');
+  if (userRaw) currentUser = JSON.parse(userRaw);
+  showUser();
+}
+
+function showUser() {
+  const userChip = document.getElementById('userChip');
+  const userName = document.getElementById('userName');
+  if (userChip && userName && currentUser) {
+    userChip.style.display = 'flex';
+    userName.textContent = currentUser.name || currentUser.email || 'User';
+  }
+}
+
+async function loadHistory() {
+  console.log('Loading history...');
+  try {
+    const token = localStorage.getItem('mx_token');
+    console.log('Token available:', !!token);
+    
+    const response = await fetch(`${API}/v1/quantities/history/all`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    console.log('History response status:', response.status);
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('History data:', data);
+      console.log('Data keys:', Object.keys(data));
+      console.log('Data.Data:', data.Data);
+      console.log('Data.data:', data.data);
+      
+      // Extract data from the correct property
+      historyData = data.Data || data.data || [];
+      console.log('History items count:', historyData.length);
+      console.log('First history item:', historyData[0]);
+      
+      renderHistory();
+    } else {
+      const errorText = await response.text();
+      console.error('History load error:', errorText);
+      showToast('Failed to load history', 'error');
+    }
+  } catch (error) {
+    console.error('Error loading history:', error);
+    showToast('Connection error', 'error');
+  }
+}
+
+function renderHistory() {
+  console.log('=== RENDER HISTORY ===');
+  const historyList = document.getElementById('historyList');
+  const emptyState = document.getElementById('emptyState');
+  
+  console.log('History list element:', historyList);
+  console.log('Empty state element:', emptyState);
+  console.log('Raw history data:', historyData);
+  
+  let filteredData = filterHistoryData();
+  console.log('Filtered data:', filteredData);
+  console.log('Filtered data length:', filteredData.length);
+  
+  if (filteredData.length === 0) {
+    console.log('No data to display, showing empty state');
+    historyList.style.display = 'none';
+    emptyState.style.display = 'block';
+    return;
+  }
+  
+  console.log('Displaying history items');
+  historyList.style.display = 'block';
+  emptyState.style.display = 'none';
+  
+  const html = filteredData.map(item => createHistoryItem(item)).join('');
+  console.log('Generated HTML:', html);
+  historyList.innerHTML = html;
+}
+
+function createHistoryItem(item) {
+  const date = new Date(item.timestamp || item.createdAt || Date.now());
+  const timeAgo = getTimeAgo(date);
+  
+  let formula = '';
+  let result = item.result || 'N/A';
+  
+  switch (item.operationType || item.operation) {
+    case 'convert':
+      formula = `${item.inputValue} ${item.fromUnit} = ${item.result} ${item.toUnit}`;
+      break;
+    case 'add':
+      formula = `${item.val1 || item.value1} ${item.unit1} + ${item.val2 || item.value2} ${item.unit2} = ${result}`;
+      break;
+    case 'subtract':
+      formula = `${item.val1 || item.value1} ${item.unit1} - ${item.val2 || item.value2} ${item.unit2} = ${result}`;
+      break;
+    case 'compare':
+      formula = `Compare: ${item.val1 || item.value1} ${item.unit1} vs ${item.val2 || item.value2} ${item.unit2} = ${result}`;
+      break;
+    case 'divide':
+      formula = `${item.val1 || item.value1} ${item.unit1} ÷ ${item.val2 || item.value2} ${item.unit2} = ${result}`;
+      break;
+    default:
+      formula = `${item.inputValue || 'N/A'} ${item.fromUnit || 'N/A'} = ${result} ${item.toUnit || 'N/A'}`;
+  }
+  
+  return `
+    <div class="history-item" style="padding:16px;background:var(--surface1);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="display:inline-block;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:500;text-transform:uppercase;background:var(--accent);color:white;">
+          ${item.operationType || item.operation || 'convert'}
+        </span>
+        <span style="font-size:12px;color:var(--text2);">${item.measurementType || item.category || 'general'}</span>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:14px;color:var(--text1);margin-bottom:8px;">${formula}</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text1);margin-bottom:8px;">Result: ${result}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--border);">
+        <span style="font-size:12px;color:var(--text2);">${timeAgo}</span>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost" onclick="copyHistoryItem('${formula} = ${result}')" style="padding:4px 8px;font-size:12px;">Copy</button>
+          <button class="btn btn-danger" onclick="deleteHistoryItem('${item.id || item.timestamp}')" style="padding:4px 8px;font-size:12px;">Delete</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function filterHistoryData() {
+  let filtered = [...historyData];
+  
+  const categoryFilter = document.getElementById('categoryFilter').value;
+  const operationFilter = document.getElementById('operationFilter').value;
+  const dateFilter = document.getElementById('dateFilter').value;
+  
+  if (categoryFilter !== 'all') {
+    filtered = filtered.filter(item => 
+      (item.measurementType || item.category || '').toLowerCase() === categoryFilter.toLowerCase()
+    );
+  }
+  
+  if (operationFilter !== 'all') {
+    filtered = filtered.filter(item => 
+      (item.operationType || item.operation || '').toLowerCase() === operationFilter.toLowerCase()
+    );
+  }
+  
+  if (dateFilter !== 'all') {
+    const now = new Date();
+    filtered = filtered.filter(item => {
+      const itemDate = new Date(item.timestamp || item.createdAt || Date.now());
+      
+      switch (dateFilter) {
+        case 'today':
+          return itemDate.toDateString() === now.toDateString();
+        case 'week':
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          return itemDate >= weekAgo;
+        case 'month':
+          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          return itemDate >= monthAgo;
+        default:
+          return true;
+      }
+    });
+  }
+  
+  return filtered.sort((a, b) => new Date(b.timestamp || b.createdAt || 0) - new Date(a.timestamp || a.createdAt || 0));
+}
+
+function filterHistory() {
+  renderHistory();
+}
+
+function refreshHistory() {
+  loadHistory();
+  showToast('History refreshed', 'success');
+}
+
+async function clearHistory() {
+  if (!confirm('Are you sure you want to clear all history? This action cannot be undone.')) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(`${API}/v1/quantities/history/clear`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('mx_token')}`
+      }
+    });
+    
+    if (response.ok) {
+      historyData = [];
+      renderHistory();
+      showToast('All history cleared', 'success');
+    } else {
+      showToast('Failed to clear history', 'error');
+    }
+  } catch (error) {
+    console.error('Error clearing history:', error);
+    showToast('Connection error', 'error');
+  }
+}
+
+async function deleteHistoryItem(itemId) {
+  if (!confirm('Are you sure you want to delete this history item?')) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(`${API}/v1/quantities/history/${itemId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('mx_token')}`
+      }
+    });
+    
+    if (response.ok) {
+      historyData = historyData.filter(item => (item.id || item.timestamp) !== itemId);
+      renderHistory();
+      showToast('History item deleted', 'success');
+    } else {
+      showToast('Failed to delete item', 'error');
+    }
+  } catch (error) {
+    console.error('Error deleting item:', error);
+    showToast('Connection error', 'error');
+  }
+}
+
+function copyHistoryItem(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Copied to clipboard', 'success');
+  }).catch(() => {
+    showToast('Failed to copy', 'error');
+  });
+}
+
+function getTimeAgo(date) {
+  const now = new Date();
+  const diff = now - date;
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  
+  if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+  if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+  if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+  return 'Just now';
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initHistory);
+</script>
+
+</body>
+</html>

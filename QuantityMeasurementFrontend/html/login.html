@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeasureX — Login / Sign Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-orb o1"></div>
+<div class="bg-orb o2"></div>
+
+<nav>
+  <a href="landing.html" class="logo">Measure<span>X</span></a>
+  <a href="landing.html" class="back-link">← Back to home</a>
+</nav>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+
+    <!-- TABS -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Login</button>
+      <button class="auth-tab" id="signupTab" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- LOGIN PANEL -->
+    <div class="form-panel active" id="loginPanel">
+      <h2 class="form-title">Welcome back</h2>
+      <p class="form-sub">Sign in to access your conversion history.</p>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+        <span class="field-error" id="loginEmailErr">Please enter a valid email.</span>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <div class="input-wrap">
+          <input type="password" id="loginPassword" placeholder="•••••••••" autocomplete="current-password">
+          <button class="toggle-pw" type="button" onclick="togglePw('loginPassword',this)">👁</button>
+        </div>
+        <span class="field-error" id="loginPassErr">Password is required.</span>
+      </div>
+
+      <button class="submit-btn" id="loginBtn" onclick="handleLogin()">
+        <span class="spinner" id="loginSpinner"></span>
+        <span id="loginBtnText">Login</span>
+      </button>
+
+      <div class="divider">or</div>
+      <a href="dashboard.html?guest=true" class="guest-btn">
+        <span class="guest-icon">👤</span>
+        Continue as Guest
+      </a>
+    </div>
+
+    <!-- SIGNUP PANEL -->
+    <div class="form-panel" id="signupPanel">
+      <h2 class="form-title">Create account</h2>
+      <p class="form-sub">Join free to save your personal conversion history.</p>
+
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="signupName" placeholder="Your Name" autocomplete="name">
+        <span class="field-error" id="signupNameErr">Name is required.</span>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email">
+        <span class="field-error" id="signupEmailErr">Please enter a valid email.</span>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <div class="input-wrap">
+          <input type="password" id="signupPassword" placeholder="Min. 8 characters"
+            oninput="checkStrength(this.value)" autocomplete="new-password">
+          <button class="toggle-pw" type="button" onclick="togglePw('signupPassword',this)">👁</button>
+        </div>
+        <div class="strength-wrap">
+          <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+          <div class="strength-label" id="strengthLabel"></div>
+        </div>
+        <span class="field-error" id="signupPassErr">Password must be at least 8 characters.</span>
+      </div>
+      <div class="field">
+        <label>Confirm Password</label>
+        <div class="input-wrap">
+          <input type="password" id="signupConfirm" placeholder="•••••••••" autocomplete="new-password">
+          <button class="toggle-pw" type="button" onclick="togglePw('signupConfirm',this)">👁</button>
+        </div>
+        <span class="field-error" id="signupConfirmErr">Passwords do not match.</span>
+      </div>
+
+      <button class="submit-btn" id="signupBtn" onclick="handleSignup()">
+        <span class="spinner" id="signupSpinner"></span>
+        <span id="signupBtnText">Create Account</span>
+      </button>
+
+      <div class="divider">or</div>
+      <a href="dashboard.html?guest=true" class="guest-btn">
+        <span class="guest-icon">👤</span>
+        Continue as Guest
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon"></span>
+  <span id="toastMsg"></span>
+</div>
+
+<script src="../js/login.js"></script>
+</body>
+</html>

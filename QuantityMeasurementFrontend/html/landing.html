@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeasureX — Precision Unit Converter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/landing.css">
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-orb o1"></div>
+<div class="bg-orb o2"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="landing.html" class="logo">Measure<span>X</span></a>
+  <div class="nav-links">
+    <a href="login.html" class="btn btn-ghost">Login</a>
+    <a href="login.html?mode=signup" class="btn btn-primary">Sign Up</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Precision Unit Conversion</div>
+  <h1 class="hero-title">
+    Convert<br>
+    <span class="line2">Everything.</span>
+  </h1>
+  <p class="hero-sub">
+    Instantly convert between any units of measurement.
+    Length, weight, volume, temperature — all in one place.
+  </p>
+  <div class="hero-cta">
+    <a href="login.html?mode=signup" class="btn btn-primary btn-xl">Get Started Free</a>
+    <a href="dashboard.html?guest=true" class="btn btn-ghost btn-xl">Continue as Guest →</a>
+  </div>
+  <div class="units-float">
+    <span class="unit-chip">km → mi</span>
+    <span class="unit-chip">kg → lb</span>
+    <span class="unit-chip">°C → °F</span>
+    <span class="unit-chip">L → gal</span>
+    <span class="unit-chip">m² → ft²</span>
+    <span class="unit-chip">Pa → bar</span>
+    <span class="unit-chip">kW → hp</span>
+  </div>
+</section>
+
+<!-- FEATURE PREVIEW -->
+<section class="preview-section">
+  <p class="section-label">Live Demo</p>
+  <h2 class="section-title" style="font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(1.8rem,3.5vw,3rem);letter-spacing:-0.03em">Try it right now</h2>
+
+  <div class="converter-demo">
+    <div class="demo-header">
+      <div class="demo-dot r"></div>
+      <div class="demo-dot y"></div>
+      <div class="demo-dot g"></div>
+    </div>
+    <div class="demo-tabs">
+      <button class="demo-tab active" onclick="switchCategory('length',this)">Length</button>
+      <button class="demo-tab" onclick="switchCategory('weight',this)">Weight</button>
+      <button class="demo-tab" onclick="switchCategory('temperature',this)">Temp</button>
+      <button class="demo-tab" onclick="switchCategory('volume',this)">Volume</button>
+    </div>
+    <div class="demo-row">
+      <div class="demo-field">
+        <div class="demo-label">Value</div>
+        <input type="number" class="demo-input" id="demoVal" value="100" oninput="doConvert()">
+      </div>
+      <div class="demo-arrow">→</div>
+      <div class="demo-field">
+        <div class="demo-label">Result</div>
+        <div class="demo-result">
+          <span class="result-val" id="demoResult">—</span>
+          <span class="result-unit" id="demoResultUnit"></span>
+        </div>
+      </div>
+    </div>
+    <div class="demo-row" style="margin-bottom:0">
+      <div class="demo-field">
+        <div class="demo-label">From</div>
+        <select class="demo-select" id="demoFrom" onchange="doConvert()"></select>
+      </div>
+      <div style="padding-bottom:4px;color:var(--muted);font-size:0.8rem">→</div>
+      <div class="demo-field">
+        <div class="demo-label">To</div>
+        <select class="demo-select" id="demoTo" onchange="doConvert()"></select>
+      </div>
+    </div>
+    <button class="convert-btn" onclick="doConvert()">⚡ Convert</button>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="section" style="text-align:center">
+  <p class="section-label">What you can convert</p>
+  <h2 class="section-title">All measurement types</h2>
+  <div class="categories-grid">
+    <a href="dashboard.html?cat=length" class="cat-card"><span class="cat-icon">📏</span><span class="cat-name">Length</span></a>
+    <a href="dashboard.html?cat=weight" class="cat-card"><span class="cat-icon">⚖️</span><span class="cat-name">Weight</span></a>
+    <a href="dashboard.html?cat=temperature" class="cat-card"><span class="cat-icon">🌡️</span><span class="cat-name">Temperature</span></a>
+    <a href="dashboard.html?cat=volume" class="cat-card"><span class="cat-icon">🧪</span><span class="cat-name">Volume</span></a>
+    <a href="dashboard.html?cat=area" class="cat-card"><span class="cat-icon">⬛</span><span class="cat-name">Area</span></a>
+    <a href="dashboard.html?cat=speed" class="cat-card"><span class="cat-icon">💨</span><span class="cat-name">Speed</span></a>
+    <a href="dashboard.html?cat=pressure" class="cat-card"><span class="cat-icon">🔬</span><span class="cat-name">Pressure</span></a>
+    <a href="dashboard.html?cat=energy" class="cat-card"><span class="cat-icon">⚡</span><span class="cat-name">Energy</span></a>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section">
+  <div style="max-width:1100px;margin:0 auto">
+    <p class="section-label">Why MeasureX</p>
+    <h2 class="section-title">Built for accuracy</h2>
+    <div class="features-grid">
+      <div class="feat-card">
+        <span class="feat-icon">⚡</span>
+        <div class="feat-name">Instant Results</div>
+        <div class="feat-desc">Conversions happen as you type — no button mashing, no delays. Just pure speed.</div>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">📜</span>
+        <div class="feat-name">Conversion History</div>
+        <div class="feat-desc">Every conversion you've made is saved to your personal history. Sign in to access it from any device.</div>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🔐</span>
+        <div class="feat-name">Personal Accounts</div>
+        <div class="feat-desc">Your history is private. Each user's conversions are kept separate and secure.</div>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🌐</span>
+        <div class="feat-name">All Unit Systems</div>
+        <div class="feat-desc">Metric, Imperial, US Customary — we cover them all with scientific precision.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-box">
+    <h2>Ready to measure?</h2>
+    <p>Sign up free and get your personal conversion history saved across all sessions. Or jump right in as a guest.</p>
+    <div class="cta-btns">
+      <a href="login.html?mode=signup" class="btn btn-primary btn-xl">Create Account</a>
+      <a href="login.html" class="btn btn-ghost btn-xl">Login</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="landing.html" class="logo">Measure<span>X</span></a>
+  <p>© 2025 MeasureX. Built on .NET Web API.</p>
+</footer>
+
+<script src="../js/landing.js"></script>
+</body>
+</html>
