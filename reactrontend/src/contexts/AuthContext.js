@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const API_URL = 'http://localhost:5263/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5263/api';
 
 const AuthContext = createContext(null);
 

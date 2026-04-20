@@ -6,7 +6,7 @@ import {
   Copy, Check
 } from 'lucide-react';
 
-const API_URL = 'http://localhost:5263/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5263/api';
 
 const UNITS = {
   length: {
