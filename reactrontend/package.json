@@ -34,7 +34,7 @@
       "last 1 safari version"
     ]
   },
-  "dereact-scripts": "5.0.1",
+  "devDependencies": {
     "serve": "^14.2.1"
   },
   "proxy": "http://localhost:5263"
