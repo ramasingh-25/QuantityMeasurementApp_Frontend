@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: quantity-measurement-app
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: serve -s build -l 3000
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: REACT_APP_API_URL
+        value: https://quantity-measurement-api-8p7a.onrender.com/api
